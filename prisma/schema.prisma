@@ -1,0 +1,32 @@
+// Vicky's Lash Lab — booking persistence
+// Provider is PostgreSQL. Set DATABASE_URL in .env (Neon / Vercel Postgres / Supabase).
+// After setting the URL, run:  npm run db:push
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  // Local calendar date of the appointment, stored as YYYY-MM-DD
+  date      String
+  // Minutes-from-midnight for start/end (matches the scheduler engine)
+  start     Int
+  end       Int
+  serviceId String
+  service   String
+  price     Int
+  name      String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+
+  // Fast lookup of a day's bookings + guard against exact double-books
+  @@index([date])
+  @@unique([date, start, serviceId])
+}
