@@ -6,7 +6,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <ClerkProvider
       signInUrl="/admin/sign-in"
       signInFallbackRedirectUrl="/admin"
-      afterSignOutUrl="/admin/sign-in"
+      afterSignOutUrl="/"
     >
       {children}
     </ClerkProvider>

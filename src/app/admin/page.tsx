@@ -21,6 +21,16 @@ async function getUpcoming(): Promise<{ rows: UpcomingBooking[]; error: string |
   }
 }
 
+function LogOut() {
+  return (
+    <SignOutButton>
+      <button className="btn btn-ghost" type="button">
+        Log out
+      </button>
+    </SignOutButton>
+  );
+}
+
 function longDate(dateISO: string) {
   const d = new Date(dateISO + "T00:00:00");
   return `${WD[d.getDay()]}, ${MO[d.getMonth()]} ${d.getDate()}`;
@@ -38,11 +48,41 @@ export default async function AdminPage() {
             This account isn&apos;t on the studio allowlist. Ask the owner to add your
             email to <code>ADMIN_EMAILS</code>.
           </p>
-          <SignOutButton>
-            <button className="btn btn-ghost" type="button" style={{ marginTop: 20 }}>
-              Sign out
-            </button>
-          </SignOutButton>
+          <div style={{ marginTop: 20 }}>
+            <LogOut />
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (BOOKING_MODE === "acuity") {
+    return (
+      <main className="admin-wrap">
+        <div className="admin-head">
+          <div>
+            <span className="eyebrow">Studio</span>
+            <h1>Welcome back</h1>
+            <p className="sub">Signed in as {admin.email}</p>
+          </div>
+          <div className="admin-actions">
+            <UserButton />
+            <LogOut />
+          </div>
+        </div>
+        <div className="admin-hub">
+          <a className="admin-tile" href={SITE.acuityUrl} target="_blank" rel="noopener">
+            <strong>Appointments</strong>
+            <span>Bookings and ${SITE.depositUsd} deposits live in Acuity →</span>
+          </a>
+          <a className="admin-tile" href={SITE.instagramUrl} target="_blank" rel="noopener">
+            <strong>Instagram</strong>
+            <span>@{SITE.instagramHandle} →</span>
+          </a>
+          <a className="admin-tile" href="/">
+            <strong>View site</strong>
+            <span>See what clients see →</span>
+          </a>
         </div>
       </main>
     );
@@ -68,20 +108,11 @@ export default async function AdminPage() {
             {rows.length} appointment{rows.length === 1 ? "" : "s"} from today onward.
           </p>
         </div>
-        <UserButton />
-      </div>
-
-      {BOOKING_MODE === "acuity" && (
-        <div className="admin-note" style={{ marginBottom: 30 }}>
-          <p className="sub">
-            Live bookings are taken in Acuity —{" "}
-            <a href={SITE.acuityUrl} target="_blank" rel="noopener">
-              open the scheduler
-            </a>
-            . This list only shows bookings made through the site&apos;s own calendar.
-          </p>
+        <div className="admin-actions">
+          <UserButton />
+          <LogOut />
         </div>
-      )}
+      </div>
 
       {error ? (
         <div className="admin-note">

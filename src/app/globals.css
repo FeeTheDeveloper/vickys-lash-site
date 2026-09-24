@@ -1120,6 +1120,47 @@ footer {
   border-color: var(--color-pink);
   color: var(--color-pink-soft);
 }
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.admin-hub {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.admin-tile {
+  display: grid;
+  gap: 6px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--color-bg-2), var(--color-bg));
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.admin-tile:hover {
+  border-color: var(--color-pink);
+  transform: translateY(-2px);
+}
+.admin-tile strong {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+.admin-tile span {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+.nav-login {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  transition: color 0.16s ease;
+}
+.nav-login:hover {
+  color: var(--color-pink-soft);
+}
 .admin-signin {
   display: flex;
   justify-content: center;

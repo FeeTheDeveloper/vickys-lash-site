@@ -22,6 +22,10 @@ export default function Header() {
           <a href="#book">Book</a>
         </nav>
         <div className="nav-cta">
+          {/* /admin sends signed-out visitors to Clerk sign-in, signed-in ones to the studio */}
+          <a className="nav-login" href="/admin">
+            Log in
+          </a>
           <a
             className="ig"
             href={SITE.instagramUrl}
