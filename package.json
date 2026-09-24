@@ -15,7 +15,9 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.9.5",
     "@prisma/client": "^6.2.1",
+    "@supabase/supabase-js": "^2.117.1",
     "next": "15.5.20",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

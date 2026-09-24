@@ -1,21 +1,14 @@
 "use server";
 
-import { redirect } from "next/navigation";
-import { signIn, signOut } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+import { checkAdmin } from "@/lib/admin";
+import { cancelBooking } from "@/lib/bookings";
 
-export type LoginState = { error?: string };
-
-export async function loginAction(
-  _prev: LoginState,
-  formData: FormData,
-): Promise<LoginState> {
-  const pw = String(formData.get("password") ?? "");
-  const ok = await signIn(pw);
-  if (!ok) return { error: "Incorrect password." };
-  redirect("/admin");
-}
-
-export async function logoutAction() {
-  await signOut();
-  redirect("/admin");
+export async function cancelAction(formData: FormData) {
+  const admin = await checkAdmin();
+  if (!admin.ok) throw new Error("Not authorized");
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await cancelBooking(id, admin.email);
+  revalidatePath("/admin");
 }

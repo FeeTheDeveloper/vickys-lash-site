@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { adminConfigured, isAdmin } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { MO, WD, iso, label, money } from "@/lib/schedule";
-import LoginForm from "./LoginForm";
-import { logoutAction } from "./actions";
+import { SignOutButton, UserButton } from "@clerk/nextjs";
+import { checkAdmin } from "@/lib/admin";
+import { listUpcoming, type UpcomingBooking } from "@/lib/bookings";
+import { MO, WD, label, money } from "@/lib/schedule";
+import { BOOKING_MODE, SITE } from "@/lib/site";
+import { cancelAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -12,28 +13,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-type Row = {
-  id: string;
-  date: string;
-  start: number;
-  end: number;
-  service: string;
-  price: number;
-  name: string;
-  email: string | null;
-  phone: string | null;
-};
-
-async function getUpcoming(): Promise<{ rows: Row[]; error: string | null }> {
-  const today = iso(new Date());
+async function getUpcoming(): Promise<{ rows: UpcomingBooking[]; error: string | null }> {
   try {
-    const rows = await prisma.booking.findMany({
-      where: { date: { gte: today } },
-      orderBy: [{ date: "asc" }, { start: "asc" }],
-    });
-    return { rows, error: null };
+    return { rows: await listUpcoming(), error: null };
   } catch {
-    return { rows: [], error: "Couldn't reach the database. Is DATABASE_URL set?" };
+    return { rows: [], error: "Couldn't reach the database. Is Supabase connected?" };
   }
 }
 
@@ -43,24 +27,23 @@ function longDate(dateISO: string) {
 }
 
 export default async function AdminPage() {
-  if (!adminConfigured()) {
+  const admin = await checkAdmin();
+
+  if (!admin.ok) {
     return (
       <main className="admin-wrap">
         <div className="admin-note">
-          <h1>Admin isn&apos;t set up yet</h1>
+          <h1>No studio access</h1>
           <p className="sub">
-            Add an <code>ADMIN_PASSWORD</code> to your environment variables, then
-            reload this page to sign in.
+            This account isn&apos;t on the studio allowlist. Ask the owner to add your
+            email to <code>ADMIN_EMAILS</code>.
           </p>
+          <SignOutButton>
+            <button className="btn btn-ghost" type="button" style={{ marginTop: 20 }}>
+              Sign out
+            </button>
+          </SignOutButton>
         </div>
-      </main>
-    );
-  }
-
-  if (!(await isAdmin())) {
-    return (
-      <main className="admin-wrap">
-        <LoginForm />
       </main>
     );
   }
@@ -68,7 +51,7 @@ export default async function AdminPage() {
   const { rows, error } = await getUpcoming();
 
   // Group by date for a calendar-style read.
-  const groups = new Map<string, Row[]>();
+  const groups = new Map<string, UpcomingBooking[]>();
   for (const r of rows) {
     const list = groups.get(r.date) ?? [];
     list.push(r);
@@ -85,12 +68,20 @@ export default async function AdminPage() {
             {rows.length} appointment{rows.length === 1 ? "" : "s"} from today onward.
           </p>
         </div>
-        <form action={logoutAction}>
-          <button className="btn btn-ghost" type="submit">
-            Sign out
-          </button>
-        </form>
+        <UserButton />
       </div>
+
+      {BOOKING_MODE === "acuity" && (
+        <div className="admin-note" style={{ marginBottom: 30 }}>
+          <p className="sub">
+            Live bookings are taken in Acuity —{" "}
+            <a href={SITE.acuityUrl} target="_blank" rel="noopener">
+              open the scheduler
+            </a>
+            . This list only shows bookings made through the site&apos;s own calendar.
+          </p>
+        </div>
+      )}
 
       {error ? (
         <div className="admin-note">
@@ -98,7 +89,7 @@ export default async function AdminPage() {
         </div>
       ) : rows.length === 0 ? (
         <div className="admin-note">
-          <p className="sub">No upcoming bookings yet. New ones show up here instantly.</p>
+          <p className="sub">No upcoming bookings yet.</p>
         </div>
       ) : (
         <div className="admin-groups">
@@ -116,15 +107,19 @@ export default async function AdminPage() {
                       <div className="admin-svc">{b.service}</div>
                       <div className="admin-client">{b.name}</div>
                       <div className="admin-contact">
-                        {b.email && (
-                          <a href={`mailto:${b.email}`}>{b.email}</a>
-                        )}
-                        {b.phone && (
-                          <a href={`tel:${b.phone}`}>{b.phone}</a>
-                        )}
+                        {b.email && <a href={`mailto:${b.email}`}>{b.email}</a>}
+                        {b.phone && <a href={`tel:${b.phone}`}>{b.phone}</a>}
                       </div>
                     </div>
-                    <div className="admin-price">{money(b.price)}</div>
+                    <div className="admin-side">
+                      <div className="admin-price">{money(b.price)}</div>
+                      <form action={cancelAction}>
+                        <input type="hidden" name="id" value={b.id} />
+                        <button className="admin-cancel" type="submit">
+                          Cancel
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 ))}
               </div>

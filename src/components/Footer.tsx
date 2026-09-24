@@ -1,6 +1,5 @@
 import Image from "next/image";
-
-const INSTAGRAM = "https://instagram.com/vickyslashlab";
+import { BOOK_LINK, SITE } from "@/lib/site";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -20,34 +19,29 @@ export default function Footer() {
               />
             </a>
             <p className="foot-blurb">
-              Lashes &amp; brows, done in the lab. Booked online, glowing in person.
+              Custom lash sets, mapped to your eyes. Appointment only in {SITE.location}.
             </p>
           </div>
           <div className="foot-col">
-            <h4>Visit</h4>
-            {/* EDIT: real details */}
-            <a href="tel:+15550000000">(555) 000-0000</a>
-            <a href="mailto:hello@vickyslashlab.com">hello@vickyslashlab.com</a>
-            <p>
-              123 Glow Ave
-              <br />
-              Your City, ST 00000
-            </p>
+            <h4>Studio</h4>
+            <p>{SITE.location}</p>
+            <p>Appointment only</p>
+            <p>${SITE.depositUsd} non-refundable deposit to book</p>
           </div>
           <div className="foot-col">
-            <h4>Hours</h4>
-            {/* EDIT: keep in sync with HOURS in src/lib/schedule.ts */}
-            <p>Tue–Fri · 10a–6p</p>
-            <p>Sat · 9a–3p</p>
-            <p>Sun–Mon · Closed</p>
-            <a href={INSTAGRAM} target="_blank" rel="noopener">
-              @vickyslashlab →
+            <h4>Connect</h4>
+            <a {...BOOK_LINK}>
+              Book your set →
             </a>
+            <a href={SITE.instagramUrl} target="_blank" rel="noopener">
+              @{SITE.instagramHandle} →
+            </a>
+            <p>Questions? DM us on Instagram.</p>
           </div>
         </div>
         <div className="foot-bottom">
           <span>© {year} Vicky&apos;s Lash Lab</span>
-          <span>Booked in-house · vickyslashlab.com</span>
+          <span>{SITE.location} · Appointment only</span>
         </div>
       </div>
     </footer>

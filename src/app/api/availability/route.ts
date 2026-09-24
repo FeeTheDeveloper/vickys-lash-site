@@ -9,6 +9,7 @@ import {
   type DayAvailability,
   type Interval,
 } from "@/lib/schedule";
+import { BOOKING_MODE } from "@/lib/site";
 
 // Availability depends on live bookings + current time — never cache it.
 export const dynamic = "force-dynamic";
@@ -16,6 +17,9 @@ export const dynamic = "force-dynamic";
 // GET /api/availability?serviceId=classic
 // -> { serviceId, days: [{ date: "2026-07-09", slots: [600, 630, ...] }] }
 export async function GET(req: NextRequest) {
+  if (BOOKING_MODE !== "inhouse") {
+    return NextResponse.json({ error: "Online booking is handled by Acuity." }, { status: 404 });
+  }
   const serviceId = req.nextUrl.searchParams.get("serviceId") ?? "";
   const service = getService(serviceId);
   if (!service) {
@@ -40,7 +44,7 @@ export async function GET(req: NextRequest) {
   let byDate = new Map<string, Interval[]>();
   try {
     const rows = await prisma.booking.findMany({
-      where: { date: { in: dates } },
+      where: { date: { in: dates }, status: { not: "cancelled" } },
       select: { date: true, start: true, end: true },
     });
     byDate = rows.reduce((map, r) => {

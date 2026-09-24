@@ -3,7 +3,9 @@ import Hero from "@/components/Hero";
 import Services from "@/components/Services";
 import Gallery from "@/components/Gallery";
 import Booking from "@/components/Booking";
+import BookAcuity from "@/components/BookAcuity";
 import Footer from "@/components/Footer";
+import { BOOKING_MODE } from "@/lib/site";
 
 export default function Home() {
   return (
@@ -13,7 +15,7 @@ export default function Home() {
         <Hero />
         <Services />
         <Gallery />
-        <Booking />
+        {BOOKING_MODE === "inhouse" ? <Booking /> : <BookAcuity />}
       </main>
       <Footer />
     </>

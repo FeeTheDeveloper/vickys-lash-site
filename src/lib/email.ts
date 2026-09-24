@@ -3,6 +3,7 @@
 // no-ops so bookings still work without email configured.
 
 import { MO, WD, label, money } from "@/lib/schedule";
+import { SITE } from "@/lib/site";
 
 export type BookingEmailData = {
   service: string;
@@ -22,6 +23,10 @@ function formatWhen(b: BookingEmailData) {
   return { day, time };
 }
 
+/** Client-supplied text goes into HTML — escape it. */
+const esc = (v: string) =>
+  v.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
 const PINK = "#ff3d9a";
 const BG = "#0d0410";
 const CARD = "#160a17";
@@ -34,7 +39,7 @@ function shell(title: string, bodyRows: string, intro: string) {
         VICKY&#39;S LASH LAB
       </div>
       <div style="text-align:center;color:#c9a2bd;font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:24px">
-        Lashes &amp; Brows
+        Custom Lash Sets &middot; ${SITE.location}
       </div>
       <h1 style="font-size:22px;margin:0 0 8px;text-align:center">${title}</h1>
       <p style="color:#c9a2bd;text-align:center;margin:0 0 24px">${intro}</p>
@@ -42,7 +47,7 @@ function shell(title: string, bodyRows: string, intro: string) {
         ${bodyRows}
       </div>
       <p style="color:#8e6f86;font-size:12px;text-align:center;margin-top:24px">
-        Vicky&#39;s Lash Lab · booked online at vickyslashlab.com
+        Vicky&#39;s Lash Lab · ${SITE.location} · @${SITE.instagramHandle}
       </p>
     </div>
   </div>`;
@@ -50,7 +55,7 @@ function shell(title: string, bodyRows: string, intro: string) {
 
 function row(k: string, v: string) {
   return `<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,120,180,.1);font-size:14px">
-    <span style="color:#8e6f86">${k}</span><span style="font-weight:600;text-align:right">${v}</span>
+    <span style="color:#8e6f86">${k}</span><span style="font-weight:600;text-align:right">${esc(v)}</span>
   </div>`;
 }
 
@@ -77,7 +82,7 @@ export async function sendBookingEmails(b: BookingEmailData) {
       html: shell(
         "You're booked! 💖",
         details,
-        `${b.name.split(" ")[0]}, your appointment is locked in. See you at the lab!`,
+        `${esc(b.name.split(" ")[0])}, your appointment is locked in. See you at the lab!`,
       ),
     });
   }

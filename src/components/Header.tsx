@@ -1,7 +1,5 @@
 import Image from "next/image";
-
-// EDIT: real Instagram URL
-const INSTAGRAM = "https://instagram.com/vickyslashlab";
+import { BOOK_LINK, SITE } from "@/lib/site";
 
 export default function Header() {
   return (
@@ -18,6 +16,7 @@ export default function Header() {
           />
         </a>
         <nav className="nav-links" aria-label="Primary">
+          <a href="#top" className="active">Home</a>
           <a href="#services">Services</a>
           <a href="#gallery">Gallery</a>
           <a href="#book">Book</a>
@@ -25,10 +24,10 @@ export default function Header() {
         <div className="nav-cta">
           <a
             className="ig"
-            href={INSTAGRAM}
+            href={SITE.instagramUrl}
             target="_blank"
             rel="noopener"
-            aria-label="Instagram"
+            aria-label={`Instagram @${SITE.instagramHandle}`}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="3" width="18" height="18" rx="5" />
@@ -36,8 +35,8 @@ export default function Header() {
               <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
             </svg>
           </a>
-          <a className="btn btn-primary" href="#book">
-            Book now
+          <a className="btn btn-outline" {...BOOK_LINK}>
+            Book your set
           </a>
         </div>
       </div>

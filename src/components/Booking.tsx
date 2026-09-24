@@ -13,8 +13,13 @@ import {
 
 const STEP_NAMES = ["Service", "Day", "Time", "Details", "Done"];
 
-type Form = { name: string; email: string; phone: string };
-const EMPTY_FORM: Form = { name: "", email: "", phone: "" };
+type Form = { name: string; email: string; phone: string; website: string };
+const EMPTY_FORM: Form = { name: "", email: "", phone: "", website: "" };
+
+const newKey = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
 
 export default function Booking() {
   const [step, setStep] = useState(1);
@@ -30,6 +35,8 @@ export default function Booking() {
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const didMount = useRef(false);
+  // One key per booking attempt so a double-submit can only create one booking.
+  const idemKey = useRef<string>("");
 
   // Scroll the booking card into view on step change (but not on first render).
   useEffect(() => {
@@ -89,6 +96,7 @@ export default function Booking() {
       setError("Add your name and an email or phone so Vicky can confirm.");
       return;
     }
+    if (!idemKey.current) idemKey.current = newKey();
     setSubmitting(true);
     setError(null);
     try {
@@ -102,6 +110,8 @@ export default function Booking() {
           name,
           email,
           phone,
+          website: form.website,
+          idempotencyKey: idemKey.current,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -109,12 +119,14 @@ export default function Booking() {
         setError(data.error ?? "Something went wrong — please try again.");
         // Slot was taken — refresh availability and bounce back to time picker.
         if (res.status === 409) {
+          idemKey.current = "";
           await loadAvailability(service);
           setStart(null);
           setStep(3);
         }
         return;
       }
+      idemKey.current = "";
       setConfirmed({ firstName: name.split(" ")[0] });
       setStep(5);
     } catch {
@@ -132,6 +144,7 @@ export default function Booking() {
     setForm(EMPTY_FORM);
     setError(null);
     setConfirmed(null);
+    idemKey.current = "";
     setStep(1);
   }
 
@@ -169,7 +182,7 @@ export default function Booking() {
         <div className="sec-head">
           <span className="eyebrow">Book online</span>
           <h2>Reserve your seat</h2>
-          <p>Live availability, straight on the site. Instant confirmation, no account needed.</p>
+          <p>Pick a service, day, and time. Vicky confirms every appointment personally.</p>
         </div>
 
         <div className="book-shell">
@@ -243,7 +256,7 @@ export default function Booking() {
                   </div>
                 ) : (
                   <div className="empty">
-                    No open days in range — check the HOURS config or try again.
+                    No open days in the next few weeks — DM us on Instagram and we&apos;ll find you a time.
                   </div>
                 )}
                 <div className="nav-row">
@@ -304,6 +317,7 @@ export default function Booking() {
                     type="text"
                     placeholder="First and last"
                     autoComplete="name"
+                    maxLength={80}
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                   />
@@ -315,6 +329,7 @@ export default function Booking() {
                     type="email"
                     placeholder="you@email.com"
                     autoComplete="email"
+                    maxLength={254}
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                   />
@@ -326,8 +341,21 @@ export default function Booking() {
                     type="tel"
                     placeholder="(000) 000-0000"
                     autoComplete="tel"
+                    maxLength={25}
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  />
+                </div>
+                {/* Honeypot — hidden from people, filled by bots. */}
+                <div className="hp" aria-hidden="true">
+                  <label htmlFor="f-website">Website</label>
+                  <input
+                    id="f-website"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={form.website}
+                    onChange={(e) => setForm({ ...form, website: e.target.value })}
                   />
                 </div>
                 {error && <div className="form-err">{error}</div>}
@@ -361,10 +389,10 @@ export default function Booking() {
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                   </div>
-                  <h3>You&apos;re booked!</h3>
+                  <h3>Request received!</h3>
                   <p>
                     {confirmed && service
-                      ? `${confirmed.firstName}, your ${service.name.toLowerCase()} is locked in.`
+                      ? `${confirmed.firstName}, your ${service.name.toLowerCase()} is on the calendar. Vicky will confirm with you directly.`
                       : "See you soon."}
                   </p>
                   <div className="summary" style={{ textAlign: "left", marginTop: 20 }}>

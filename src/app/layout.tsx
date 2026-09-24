@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Syne, Sora, Kaushan_Script } from "next/font/google";
+import { Bodoni_Moda, Sora } from "next/font/google";
+import { SITE } from "@/lib/site";
 import "./globals.css";
 
-const syne = Syne({
+const bodoni = Bodoni_Moda({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  variable: "--font-syne",
+  weight: ["500", "600", "700"],
+  variable: "--font-bodoni",
   display: "swap",
 });
 const sora = Sora({
@@ -14,30 +15,30 @@ const sora = Sora({
   variable: "--font-sora",
   display: "swap",
 });
-const kaushan = Kaushan_Script({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-kaushan",
-  display: "swap",
-});
 
-const SITE_URL = "https://vickyslashlab.com";
+const DESCRIPTION =
+  "Custom lash sets in Dallas, designed for your eye shape, your lifestyle, and your moment. Appointment only — book your set online.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: "Vicky's Lash Lab — Lashes & Brows · Book online",
-  description:
-    "Lashes and brows, done in the lab. Book your appointment with Vicky's Lash Lab online — real-time availability, no phone tag.",
-  keywords: ["lashes", "brows", "lash lab", "eyelash extensions", "brow lamination", "book online"],
+  metadataBase: new URL(SITE.url),
+  title: "Vicky's Lash Lab — Custom Lash Sets in Dallas, TX",
+  description: DESCRIPTION,
+  keywords: [
+    "lash extensions Dallas",
+    "lash clusters Dallas",
+    "custom lash mapping",
+    "Vicky's Lash Lab",
+  ],
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
   },
   openGraph: {
-    title: "Vicky's Lash Lab — Lashes & Brows",
-    description: "Custom sets, clean fills, sculpted brows. Book your slot in real time.",
-    url: SITE_URL,
-    siteName: "Vicky's Lash Lab",
+    title: "Vicky's Lash Lab — Lashes, engineered for your eyes.",
+    description: DESCRIPTION,
+    url: SITE.url,
+    siteName: SITE.name,
+    locale: "en_US",
     images: [{ url: "/logo.png", width: 1024, height: 1024, alt: "Vicky's Lash Lab" }],
     type: "website",
   },
@@ -55,7 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${sora.variable} ${kaushan.variable}`}
+      className={`${bodoni.variable} ${sora.variable}`}
     >
       <body>{children}</body>
     </html>
