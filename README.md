@@ -1,7 +1,9 @@
 # Vicky's Lash Lab
 
-Lashes & brows studio site with real-time online booking. Built with **Next.js 15**
+Lashes and brows studio site with an online-booking foundation. Built with **Next.js 15**
 (App Router), **Tailwind CSS v4**, and **Prisma + PostgreSQL** for booking storage.
+
+[Portfolio evidence and truth boundary](docs/PORTFOLIO_CASE_STUDY.md)
 
 The design amplifies the logo's energy — animated neon glow, gradient accents,
 floating hero logo, and scroll-reveal sections on a dark base.
